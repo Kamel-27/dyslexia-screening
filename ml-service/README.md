@@ -1,0 +1,156 @@
+# DysTest Gamified ML Service
+
+A lightweight **FastAPI** service that powers the dyslexia risk prediction engine for the **DysTest Gamified Test** application.
+
+The service receives behavioral metrics collected during the interactive cognitive game (clicks, hits, misses, scores, accuracy, response times per question) and returns an age-group-specific risk assessment using pre-trained machine learning models.
+
+---
+
+## How It Works
+
+The gamified test collects 33 interactive questions across different cognitive domains:
+
+- **Letter recognition** (identifying different or mirrored letters)
+- **Phonological awareness** (syllable arrangement, sound matching)
+- **Working memory** (sequence recall, memorization tasks)
+- **Visual discrimination** (shape/letter differentiation)
+
+For each question, the frontend records `Clicks`, `Hits`, `Misses`, `Score`, `Accuracy`, and `Missrate`. After test completion, the entire feature vector is sent to this service for ML inference.
+
+### Age-Group Models
+
+Three separate models handle different developmental stages:
+
+| Group | Age Range | Model File |
+|-------|-----------|------------|
+| G1    | 7–8 years | `model_G1_7_8_V2.pkl` |
+| G2    | 9–11 years | `model_G2_9_11_V2.pkl` |
+| G3    | 12–17 years | `model_G3_12_17_V2.pkl` |
+
+Thresholds are selected via Youden's J statistic for each group, balancing sensitivity and specificity.
+
+### Feature Engineering
+
+Two fixes are applied at inference time to match the V2 training pipeline:
+
+1. **Clipping**: Raw `Accuracy*` and `Missrate*` values are clipped to `[0, 1]` (training data had division-by-zero artifacts).
+2. **Adjusted Accuracy**: For questions with structurally misleading click counts (Q26–Q28, Q30–Q32), `AdjAcc{q} = Hits / (Hits + Misses)` is computed.
+
+---
+
+## API Reference
+
+### `GET /health`
+
+```json
+{ "status": "ok", "version": "2.0.0" }
+```
+
+### `POST /v1/gamified/predict`
+
+**Request body:**
+
+```json
+{
+  "session_id": "abc-123",
+  "Age": 9,
+  "Gender": 0,
+  "Nativelang": 1,
+  "Otherlang": 0,
+  "Clicks1": 5, "Hits1": 4, "Misses1": 1, "Score1": 80, "Accuracy1": 0.8, "Missrate1": 0.2,
+  "..."
+}
+```
+
+**Response:**
+
+```json
+{
+  "session_id": "abc-123",
+  "probability": 0.73,
+  "threshold": 0.45,
+  "prediction": "Dyslexia Risk",
+  "confidence": 0.46,
+  "age_group": "G2",
+  "model_version": "2.0",
+  "timestamp": "2026-05-18T12:00:00Z"
+}
+```
+
+---
+
+## Setup & Development
+
+### Requirements
+
+- Python 3.12+
+- `pip` or a virtual environment manager
+
+### Installation
+
+```bash
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install the package
+pip install -e ".[dev]"
+```
+
+### Running
+
+```bash
+cp .env.example .env
+uvicorn app.api:app --reload --host 0.0.0.0 --port 8001
+```
+
+The API docs are available at [http://localhost:8001/docs](http://localhost:8001/docs).
+
+### Docker
+
+```bash
+docker build -t dystest-ml-service .
+docker run -p 8001:8001 dystest-ml-service
+```
+
+### Running Tests
+
+```bash
+pytest
+```
+
+---
+
+## Project Structure
+
+```
+ml-service/
+├── app/
+│   ├── api.py              # FastAPI app factory
+│   ├── config.py           # Settings (Pydantic)
+│   ├── core/               # Middleware, exception handlers, lifespan
+│   ├── routers/
+│   │   ├── health.py       # GET /health
+│   │   └── gamified.py     # POST /v1/gamified/predict
+│   ├── schemas/
+│   │   ├── gamified.py     # Request / Response models
+│   │   ├── health.py       # HealthResponse
+│   │   └── errors.py       # ErrorResponse
+│   └── services/
+│       └── gamified/
+│           └── predictor.py  # GamifiedPredictor (multi-group)
+├── models/
+│   └── gamified/
+│       ├── question_config.json
+│       ├── model_G1_7_8_V2.pkl
+│       ├── model_G2_9_11_V2.pkl
+│       └── model_G3_12_17_V2.pkl
+├── tests/
+├── Dockerfile
+├── pyproject.toml
+└── README.md               # This file
+```
+
+---
+
+> **Disclaimer:** This service is part of a research project. Predictions are statistical risk estimates and are not a clinical diagnosis of dyslexia.
