@@ -596,32 +596,32 @@ export const QUESTION_BANK: Question[] = [
         distractorTokens: ["greeb", "grean", "greem", "greel", "greer"],
       },
       {
-        visualCue: "chiar",
+        visualCue: "chajr",
         targetToken: "chair",
-        distractorTokens: ["chiar", "chaar", "choir", "chairr", "chier"],
+        distractorTokens: ["chajr", "chaar", "choir", "chairr", "chier"],
       },
       {
-        visualCue: "breadt",
+        visualCue: "breud",
         targetToken: "bread",
         distractorTokens: ["breadt", "briad", "breud", "broad", "breld"],
       },
       {
-        visualCue: "ligth",
+        visualCue: "lignt",
         targetToken: "light",
         distractorTokens: ["ligth", "lighr", "lignt", "lightt", "ligrt"],
       },
       {
-        visualCue: "moues",
+        visualCue: "mouze",
         targetToken: "mouse",
         distractorTokens: ["moues", "mousa", "mousr", "mousl", "moust"],
       },
       {
-        visualCue: "plnat",
+        visualCue: "plamt",
         targetToken: "plant",
         distractorTokens: ["plnat", "planr", "plent", "plamt", "plart"],
       },
       {
-        visualCue: "houes",
+        visualCue: "hoube",
         targetToken: "house",
         distractorTokens: ["houes", "housa", "housr", "hoube", "hoyse"],
       },
@@ -631,7 +631,7 @@ export const QUESTION_BANK: Question[] = [
         distractorTokens: ["milt", "milp", "milm", "miln", "mils"],
       },
       {
-        visualCue: "leafs",
+        visualCue: "leax",
         targetToken: "leaf",
         distractorTokens: ["leafs", "leafd", "leafm", "leafn", "leafr"],
       },

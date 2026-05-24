@@ -1050,10 +1050,29 @@ export default function TestPage() {
     async function startQuestionWithVoice() {
       setIsVoicePlaying(true);
 
-      // Initialize prompts and tiles immediately so the question is active instantly!
+      const promptSequence = buildPromptSequence(question);
+      const firstPrompt = promptSequence[0];
+
       if (isTypedRecallMode) {
-        const promptSequence = buildPromptSequence(question);
-        const firstPrompt = promptSequence[0];
+        // For typed sequence recall (Q30, Q31, Q32), play instruction audio FIRST,
+        // and only activate the question phase once the instruction is finished!
+        try {
+          if (question.audioUrl) {
+            await playAudioAndWait(question.audioUrl);
+          } else {
+            await speakWithVoiceFallback(question.audioText);
+          }
+        } catch (e) {
+          console.error("Autoplay voice error:", e);
+        }
+
+        if (!active) {
+          return;
+        }
+
+        setIsVoicePlaying(false);
+
+        // Now activate the question!
         setTypedPromptSequence(promptSequence);
         setTypedPromptIndex(0);
         setTypedInput("");
@@ -1063,7 +1082,9 @@ export default function TestPage() {
         setGridCells(
           buildAnswerOptions(question, firstPrompt, typedKeyboardKeys),
         );
+        setPhase("active");
       } else {
+        // For other questions, initialize instantly and play instruction in background
         const initialPrompt = shouldUseSequentialPromptCycle(question)
           ? (() => {
               const sequence = buildPromptSequence(question);
@@ -1076,25 +1097,25 @@ export default function TestPage() {
         setGridCells(
           buildAnswerOptions(question, initialPrompt, typedKeyboardKeys),
         );
-      }
-      setPhase("active");
+        setPhase("active");
 
-      // Autoplay voice instruction in background!
-      void (async () => {
-        try {
-          if (question.audioUrl) {
-            await playAudioAndWait(question.audioUrl);
-          } else {
-            await speakWithVoiceFallback(question.audioText);
+        // Autoplay voice instruction in background!
+        void (async () => {
+          try {
+            if (question.audioUrl) {
+              await playAudioAndWait(question.audioUrl);
+            } else {
+              await speakWithVoiceFallback(question.audioText);
+            }
+          } catch (e) {
+            console.error("Autoplay voice error:", e);
+          } finally {
+            if (active) {
+              setIsVoicePlaying(false);
+            }
           }
-        } catch (e) {
-          console.error("Autoplay voice error:", e);
-        } finally {
-          if (active) {
-            setIsVoicePlaying(false);
-          }
-        }
-      })();
+        })();
+      }
     }
 
     void startQuestionWithVoice();
@@ -1371,6 +1392,50 @@ export default function TestPage() {
       const hasPendingChoices = pendingLetterReplacementIndex !== null;
 
       if (!hasPendingChoices) {
+        const targetWord =
+          activePrompt?.targetToken.toLowerCase() ??
+          question.targetToken.toLowerCase();
+        const originalWord = (activePrompt?.visualCue ?? question.visualCue ?? "").toLowerCase();
+        const correctLetter = targetWord.charAt(answerIndex);
+
+        // Check if the clicked letter in originalWord is actually incorrect
+        const isWrongLetterSelected = originalWord.charAt(answerIndex) !== correctLetter;
+
+        if (!isWrongLetterSelected) {
+          setStats((previous) => ({
+            clicks: previous.clicks + 1,
+            hits: previous.hits,
+            misses: previous.misses + 1,
+          }));
+
+          void postEvent(
+            "click",
+            question.id,
+            `${answerIndex}:${clickedToken}`,
+          ).catch((eventError) => {
+            setError(
+              eventError instanceof Error
+                ? eventError.message
+                : "Unexpected error.",
+            );
+          });
+
+          void postEvent(
+            "miss",
+            question.id,
+            `${answerIndex}:${clickedToken}`,
+          ).catch((eventError) => {
+            setError(
+              eventError instanceof Error
+                ? eventError.message
+                : "Unexpected error.",
+            );
+          });
+
+          moveToNextPrompt(question);
+          return;
+        }
+
         void postEvent(
           "click",
           question.id,
@@ -1383,9 +1448,6 @@ export default function TestPage() {
           );
         });
 
-        const targetWord =
-          activePrompt?.targetToken.toLowerCase() ??
-          question.targetToken.toLowerCase();
         const correctionTarget = targetWord.charAt(answerIndex);
 
         if (!correctionTarget) {
