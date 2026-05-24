@@ -5,6 +5,7 @@ export type Demographics = {
   nativeLang: boolean;
   otherLang: boolean;
   age: number;
+  studentName?: string;
   preferredExamLanguage?: "en";
   teacherEmail?: string;
   teacherWhatsapp?: string;

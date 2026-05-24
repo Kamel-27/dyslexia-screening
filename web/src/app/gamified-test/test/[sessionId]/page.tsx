@@ -567,14 +567,14 @@ function generateGrid(
 
 function getCellSide(gridSize: number) {
   if (gridSize >= 4) {
-    return "min(20vw, 13vh)";
+    return "min(22vw, 15vh)";
   }
 
   if (gridSize === 3) {
-    return "min(23vw, 14vh)";
+    return "min(25vw, 17vh)";
   }
 
-  return "min(25vw, 16vh)";
+  return "min(27vw, 19vh)";
 }
 
 function getTokenFontSize(tokenLength: number) {
@@ -592,6 +592,9 @@ function getTokenFontSize(tokenLength: number) {
   }
   if (tokenLength >= 4) {
     return "clamp(1.34rem, 2.2vw, 1.72rem)";
+  }
+  if (tokenLength === 3) {
+    return "clamp(1.6rem, 3.25vw, 2.35rem)";
   }
   return "clamp(1.65rem, 3.35vw, 2.45rem)";
 }
@@ -2183,8 +2186,8 @@ export default function TestPage() {
                       isSentenceSegmentationMode || cell.length > 3
                         ? "normal"
                         : "nowrap",
-                    overflow: cell.length > 3 ? "visible" : "hidden",
-                    textOverflow: cell.length > 3 ? "unset" : "clip",
+                    overflow: cell.length >= 3 ? "visible" : "hidden",
+                    textOverflow: cell.length >= 3 ? "unset" : "clip",
                   }}
                 >
                   {cell}

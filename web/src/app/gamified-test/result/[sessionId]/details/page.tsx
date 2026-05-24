@@ -19,14 +19,7 @@ export default function DetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ResultPayload | null>(null);
-  const [isLightTheme, setIsLightTheme] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const searchParams = new URLSearchParams(window.location.search);
-      setIsLightTheme(searchParams.get("theme") === "light");
-    }
-  }, []);
+  const isLightTheme = true;
 
   useEffect(() => {
     try {

@@ -19,6 +19,7 @@ export default function GamifiedTestStartPage() {
   const [theme, setTheme] = useState<Theme>("gamified");
   const [gender, setGender] = useState<"male" | "female">("male");
   const [age, setAge] = useState<number>(9);
+  const [studentName, setStudentName] = useState("");
   const [nativeLang, setNativeLang] = useState(true);
   const [otherLang, setOtherLang] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,7 +46,7 @@ export default function GamifiedTestStartPage() {
         `gt_session_${payload.sessionId}`,
         JSON.stringify({
           sessionId: payload.sessionId,
-          demographics: { age, gender, nativeLang, otherLang },
+          demographics: { age, gender, nativeLang, otherLang, studentName },
           questionIds: payload.questionIds,
           theme: theme === "gamified" ? "dark" : "light",
         }),
@@ -83,6 +84,21 @@ export default function GamifiedTestStartPage() {
           </div>
 
           <form onSubmit={handleStart} className="space-y-4">
+            {/* Student Name */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                Student's Name
+              </label>
+              <input
+                type="text"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                placeholder="Enter student's full name"
+                required
+                className="w-full rounded-xl px-3 py-2.5 text-xs border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 transition"
+              />
+            </div>
+
             {/* Age & Gender side-by-side for compactness */}
             <div className="grid grid-cols-2 gap-4">
               {/* Age */}
@@ -169,7 +185,7 @@ export default function GamifiedTestStartPage() {
                       : "bg-white border-slate-200 text-slate-600 hover:border-emerald-700/40"
                   }`}
                 >
-                  🎮 Gamified (Dark)
+                  🎮 Gamified Theme
                 </button>
                 <button
                   type="button"
@@ -180,7 +196,7 @@ export default function GamifiedTestStartPage() {
                       : "bg-white border-slate-200 text-slate-600 hover:border-emerald-700/40"
                   }`}
                 >
-                  ☀️ Clean Light
+                  ☀️ Light Theme
                 </button>
               </div>
             </div>
