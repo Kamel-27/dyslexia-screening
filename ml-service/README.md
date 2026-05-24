@@ -113,11 +113,62 @@ docker build -t dystest-ml-service .
 docker run -p 8001:8001 dystest-ml-service
 ```
 
-### Running Tests
+### Running Tests & API Verification
+
+We have created a robust, automated integration and unit testing suite under the `tests/` directory to verify the health status and the age-group predictions of our ML service.
+
+#### 1. Running Automated Tests
+
+To execute the automated endpoint test suite:
 
 ```bash
-pytest
+# Ensure you are inside the ml-service directory and the virtual environment is active
+# Then run pytest:
+pytest tests/test_endpoints.py
 ```
+
+The tests cover:
+- **`GET /health`** — Verifies the server is online and returning the active version.
+- **Payload Validation** — Assures that invalid age ranges (e.g. `< 7` or `> 17`) or missing fields return standard `400 Bad Request` messages.
+- **Model Inference G1 (Ages 7–8)** — Simulates test submission and checks prediction return values against the calibrated G1 model.
+- **Model Inference G2 (Ages 9–11)** — Simulates test submission and validates G2 model output.
+- **Model Inference G3 (Ages 12–17)** — Simulates test submission and validates G3 model output.
+
+#### 2. Manual Endpoint Testing (via `curl`)
+
+You can query the active service manually using standard HTTP clients like Postman or `curl`. Here is a real payload example corresponding to **G1 (Age 7-8 years)**:
+
+```bash
+curl -X POST "http://localhost:8001/v1/gamified/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "session_id": "test-session-curl-g1",
+       "Age": 8,
+       "Gender": 0,
+       "Nativelang": 1,
+       "Otherlang": 0,
+       "Clicks1": 3, "Hits1": 2, "Misses1": 1, "Score1": 66.6, "Accuracy1": 0.67, "Missrate1": 0.33,
+       "Clicks2": 3, "Hits2": 2, "Misses2": 1, "Score2": 66.6, "Accuracy2": 0.67, "Missrate2": 0.33,
+       "Clicks3": 3, "Hits3": 2, "Misses3": 1, "Score3": 66.6, "Accuracy3": 0.67, "Missrate3": 0.33,
+       "Clicks4": 3, "Hits4": 2, "Misses4": 1, "Score4": 66.6, "Accuracy4": 0.67, "Missrate4": 0.33,
+       "Clicks5": 3, "Hits5": 2, "Misses5": 1, "Score5": 66.6, "Accuracy5": 0.67, "Missrate5": 0.33,
+       "Clicks6": 3, "Hits6": 2, "Misses6": 1, "Score6": 66.6, "Accuracy6": 0.67, "Missrate6": 0.33,
+       "Clicks7": 3, "Hits7": 2, "Misses7": 1, "Score7": 66.6, "Accuracy7": 0.67, "Missrate7": 0.33,
+       "Clicks8": 3, "Hits8": 2, "Misses8": 1, "Score8": 66.6, "Accuracy8": 0.67, "Missrate8": 0.33,
+       "Clicks9": 3, "Hits9": 2, "Misses9": 1, "Score9": 66.6, "Accuracy9": 0.67, "Missrate9": 0.33,
+       "Clicks10": 3, "Hits10": 2, "Misses10": 1, "Score10": 66.6, "Accuracy10": 0.67, "Missrate10": 0.33,
+       "Clicks11": 3, "Hits11": 2, "Misses11": 1, "Score11": 66.6, "Accuracy11": 0.67, "Missrate11": 0.33,
+       "Clicks12": 3, "Hits12": 2, "Misses12": 1, "Score12": 66.6, "Accuracy12": 0.67, "Missrate12": 0.33,
+       "Clicks14": 3, "Hits14": 2, "Misses14": 1, "Score14": 66.6, "Accuracy14": 0.67, "Missrate14": 0.33,
+       "Clicks15": 3, "Hits15": 2, "Misses15": 1, "Score15": 66.6, "Accuracy15": 0.67, "Missrate15": 0.33,
+       "Clicks16": 3, "Hits16": 2, "Misses16": 1, "Score16": 66.6, "Accuracy16": 0.67, "Missrate16": 0.33,
+       "Clicks17": 3, "Hits17": 2, "Misses17": 1, "Score17": 66.6, "Accuracy17": 0.67, "Missrate17": 0.33,
+       "Clicks22": 3, "Hits22": 2, "Misses22": 1, "Score22": 66.6, "Accuracy22": 0.67, "Missrate22": 0.33,
+       "Clicks23": 3, "Hits23": 2, "Misses23": 1, "Score23": 66.6, "Accuracy23": 0.67, "Missrate23": 0.33,
+       "Clicks30": 3, "Hits30": 2, "Misses30": 1, "Score30": 66.6, "Accuracy30": 0.67, "Missrate30": 0.33
+     }'
+```
+
 
 ---
 
