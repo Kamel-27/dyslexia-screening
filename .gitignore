@@ -1,0 +1,69 @@
+# ──────────────────────────────────────────────────────────────
+# DysTest Repository Git Ignore
+# ──────────────────────────────────────────────────────────────
+
+# ── Python & ML Service ──
+.venv/
+venv/
+env/
+ENV/
+bin/
+lib/
+include/
+pip-selfcheck.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.tox/
+.coverage
+.cache
+.ipynb_checkpoints/
+ml-service/.venv/
+ml-service/__pycache__/
+ml-service/.pytest_cache/
+ml-service/.ruff_cache/
+
+# ── Node.js / Next.js Frontend ──
+node_modules/
+.next/
+out/
+build/
+dist/
+.docusaurus/
+.pnpm-store/
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/dist/
+
+# ── Environment Variables (Secrets) ──
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+web/.env.local
+ml-service/.env
+
+# ── OS Files ──
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.bak
+
+# ── IDEs and Editors ──
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
