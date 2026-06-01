@@ -16,9 +16,9 @@ type SessionStartResponse = {
 
 export default function GamifiedTestStartPage() {
   const router = useRouter();
-  const [theme, setTheme] = useState<Theme>("gamified");
+  const [theme, setTheme] = useState<Theme>("light");
   const [gender, setGender] = useState<"male" | "female">("male");
-  const [age, setAge] = useState<number>(9);
+  const [age, setAge] = useState<number | "">(9);
   const [studentName, setStudentName] = useState("");
   const [nativeLang, setNativeLang] = useState(true);
   const [otherLang, setOtherLang] = useState(false);
@@ -46,7 +46,7 @@ export default function GamifiedTestStartPage() {
         `gt_session_${payload.sessionId}`,
         JSON.stringify({
           sessionId: payload.sessionId,
-          demographics: { age, gender, nativeLang, otherLang, studentName },
+          demographics: { age: age as number, gender, nativeLang, otherLang, studentName },
           questionIds: payload.questionIds,
           theme: theme === "gamified" ? "dark" : "light",
         }),
@@ -111,7 +111,10 @@ export default function GamifiedTestStartPage() {
                   min={7}
                   max={17}
                   value={age}
-                  onChange={(e) => setAge(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setAge(val === "" ? "" : Number(val));
+                  }}
                   required
                   className="w-full rounded-xl px-3 py-2 text-xs border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 transition"
                 />

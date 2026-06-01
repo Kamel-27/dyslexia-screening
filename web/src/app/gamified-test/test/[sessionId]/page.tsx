@@ -297,6 +297,13 @@ function buildPromptSequence(question: Question): ActivePrompt[] {
     correctionDistractorTokens: question.correctionDistractorTokens,
   };
 
+  // Assign high-quality recorded variant 1 audio URLs for Q31 and Q32 base prompts
+  if (question.id === "q31") {
+    basePrompt.audioUrl = "/gamified-test/questions/q31_v1.mp3";
+  } else if (question.id === "q32") {
+    basePrompt.audioUrl = "/gamified-test/questions/q32_v1.mp3";
+  }
+
   if (!question.variants || question.variants.length === 0) {
     return [basePrompt];
   }
@@ -628,7 +635,7 @@ export default function TestPage() {
   const searchParams = useSearchParams();
   const sessionId = params.sessionId;
   const examLanguage: ExamLanguage = "en";
-  const isLightTheme = searchParams.get("theme") === "light";
+  const isLightTheme = searchParams.get("theme") !== "dark";
   const copy = EXAM_COPY[examLanguage];
   const isArabicExam = false; // Only English is currently supported
   const voiceLocale: VoiceLocale = "en-US";
@@ -2024,11 +2031,11 @@ export default function TestPage() {
                 ) : null}
               </div>
 
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-1 sm:gap-2">
                 {typedKeyboardRows.map((row, rowIndex) => (
                   <div
                     key={`kb-row-${rowIndex}`}
-                    className="grid gap-2 sm:gap-2.5"
+                    className="grid gap-1 sm:gap-2"
                     style={{
                       gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
                     }}
@@ -2044,15 +2051,15 @@ export default function TestPage() {
                             typedKeyboardKeys.indexOf(keyToken),
                           )
                         }
-                        className={`rounded-sm border px-2 font-bold leading-tight transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                        className={`rounded-sm border px-2 font-bold leading-tight transition disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center ${
                           isLightTheme
-                            ? "border-2 border-emerald-100 bg-white text-slate-800 hover:border-emerald-300 hover:bg-emerald-50"
+                            ? "border-2 border-emerald-100 bg-white text-slate-800 hover:border-emerald-350 hover:bg-emerald-50"
                             : "border-sky-200 bg-white text-black hover:bg-sky-50"
                         }`}
                         style={{
-                          width: "min(12.5vw, 8.8vh)",
-                          height: "min(12.5vw, 8.8vh)",
-                          fontSize: "clamp(1.25rem, 2.4vw, 1.8rem)",
+                          width: "min(8.8vw, 6vh, 3.5rem)",
+                          height: "min(8.8vw, 6vh, 3.5rem)",
+                          fontSize: "clamp(0.95rem, 2vw, 1.4rem)",
                         }}
                       >
                         {keyToken}
@@ -2218,7 +2225,9 @@ export default function TestPage() {
                         : isSentenceSegmentationMode
                           ? "min(88vw, 56rem)"
                           : cell.length > 3
-                            ? "min(22vw, 9rem)"
+                            ? effectiveGridSize === 3
+                              ? "min(28vw, 12rem)"
+                              : "min(22vw, 9rem)"
                             : cellSide,
                     height:
                       interactionType === "letterChoices" ||
@@ -2228,7 +2237,9 @@ export default function TestPage() {
                         : isSentenceSegmentationMode
                           ? "auto"
                           : cell.length > 3
-                            ? "min(15vw, 6.2rem)"
+                            ? effectiveGridSize === 3
+                              ? "min(20vw, 8.5rem)"
+                              : "min(15vw, 6.2rem)"
                             : cellSide,
                     fontSize:
                       interactionType === "wordLetters" ||
@@ -2237,7 +2248,9 @@ export default function TestPage() {
                         : isSentenceSegmentationMode
                           ? "clamp(1.05rem, 1.9vw, 1.45rem)"
                           : cell.length > 3
-                            ? "clamp(0.95rem, 1.8vw, 1.28rem)"
+                            ? effectiveGridSize === 3
+                              ? "clamp(1.15rem, 2.2vw, 1.5rem)"
+                              : "clamp(0.95rem, 1.8vw, 1.28rem)"
                             : getTokenFontSize(cell.length),
                     padding: isSentenceSegmentationMode
                       ? "0.8rem 1rem"
